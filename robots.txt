@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+# A diretiva Sitemap exige URL absoluta e entra quando houver domínio definitivo.
