@@ -234,10 +234,21 @@ function scheduleStagger(rows) {
 	return offset;
 }
 
-export function runIntro({ container, canvas, fontData, isMobile, colors, onDone }) {
+export function runIntro({ container, canvas, fontData, isMobile, colors, onDone, debugFps }) {
 	const scene = new Scene();
 	const width = window.innerWidth;
 	const height = window.innerHeight;
+
+	let fpsEl = null;
+	let fpsFrames = 0;
+	let fpsWindowStart = 0;
+	if (debugFps) {
+		fpsEl = document.createElement('div');
+		fpsEl.style.cssText =
+			'position:fixed;top:8px;left:8px;z-index:2147483647;font:12px/1.4 monospace;color:#0f0;background:rgba(0,0,0,0.6);padding:4px 8px;border-radius:4px;pointer-events:none;';
+		fpsEl.textContent = 'FPS: --';
+		container.appendChild(fpsEl);
+	}
 
 	const camera = new PerspectiveCamera(34, width / height, 0.1, 100);
 	const camDist = 6.2;
@@ -413,6 +424,16 @@ export function runIntro({ container, canvas, fontData, isMobile, colors, onDone
 
 		renderer.render(scene, camera);
 
+		if (fpsEl) {
+			fpsFrames++;
+			if (now - fpsWindowStart >= 500) {
+				const fps = (fpsFrames * 1000) / (now - fpsWindowStart);
+				fpsEl.textContent = 'FPS: ' + fps.toFixed(0);
+				fpsFrames = 0;
+				fpsWindowStart = now;
+			}
+		}
+
 		if (!skipped && elapsed >= pauseEndsAt) {
 			beginExit(false);
 			return;
@@ -420,6 +441,8 @@ export function runIntro({ container, canvas, fontData, isMobile, colors, onDone
 
 		rafId = requestAnimationFrame(frame);
 	}
+
+	if (fpsEl) fpsWindowStart = start;
 
 	function disposeAll() {
 		rowGroups.forEach((g) => {
@@ -434,6 +457,7 @@ export function runIntro({ container, canvas, fontData, isMobile, colors, onDone
 		geometryCache.forEach((entry) => entry.geometry.dispose());
 		shadowTex.dispose();
 		renderer.dispose();
+		if (fpsEl && fpsEl.parentNode) fpsEl.parentNode.removeChild(fpsEl);
 	}
 
 	function beginExit(fast) {

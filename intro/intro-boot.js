@@ -74,6 +74,7 @@
 
 				stage.classList.add('nt-intro__stage--live');
 
+				const debugFps = new URLSearchParams(location.search).get('fps') === '1';
 				const controller = mod.runIntro({
 					container: overlay,
 					canvas,
@@ -81,6 +82,7 @@
 					isMobile,
 					colors: { rim: '#00ffff', line: '#ffffff' },
 					onDone: bail,
+					debugFps,
 				});
 
 				setupSkip(controller);
