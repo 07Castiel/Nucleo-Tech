@@ -8,8 +8,50 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="intro/intro.css">
 </head>
 <body>
+    <!-- Intro (splash) — overlay sobre o hero, primeira visita da sessão. -->
+    <div id="nt-intro" aria-hidden="true">
+        <div class="nt-intro__stage">
+            <canvas class="nt-intro__canvas"></canvas>
+        </div>
+        <div class="nt-intro__particles">
+            <span class="nt-intro__particle"></span><span class="nt-intro__particle"></span>
+            <span class="nt-intro__particle"></span><span class="nt-intro__particle"></span>
+            <span class="nt-intro__particle"></span><span class="nt-intro__particle"></span>
+            <span class="nt-intro__particle"></span><span class="nt-intro__particle"></span>
+            <span class="nt-intro__particle"></span><span class="nt-intro__particle"></span>
+            <span class="nt-intro__particle"></span><span class="nt-intro__particle"></span>
+            <span class="nt-intro__particle"></span><span class="nt-intro__particle"></span>
+        </div>
+        <!-- Fallback prefers-reduced-motion: texto igual à constante INTRO_TEXT
+             em intro/src/intro-core.js ("NÚCLEO TECH"), mesmas cores do logo. -->
+        <p class="nt-intro__static-text"><span class="nt-intro__word--a">NÚCLEO</span> <span class="nt-intro__word--b">TECH</span></p>
+        <button type="button" class="nt-intro__skip" tabindex="-1">Pular</button>
+    </div>
+    <script>
+        // Decide ANTES do primeiro paint se a intro roda, para não haver flash
+        // do hero em visitas repetidas na mesma sessão. Lógica pesada fica em
+        // intro/intro-boot.js (carregado como module, portanto adiado).
+        (function () {
+            var KEY = 'nt-intro-seen';
+            var seen = false;
+            try { seen = sessionStorage.getItem(KEY) === '1'; } catch (e) {}
+            var overlay = document.getElementById('nt-intro');
+            if (seen) {
+                if (overlay) overlay.hidden = true;
+                document.documentElement.classList.add('nt-intro-done');
+                window.__ntIntroSeen = true;
+            } else {
+                try { sessionStorage.setItem(KEY, '1'); } catch (e) {}
+                document.documentElement.classList.add('nt-intro-lock');
+                window.__ntIntroSeen = false;
+            }
+        })();
+    </script>
+    <script type="module" src="intro/intro-boot.js"></script>
+
     <!-- Partículas de fundo -->
     <div class="particles" id="particles"></div>
 
